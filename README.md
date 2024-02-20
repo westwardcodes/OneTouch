@@ -1,34 +1,41 @@
-# OneTouch- Text Storage Application
+OneTouch
 
-## Overview
-This is a web-based application that allows users to store and organize Text/Emails into different categories. Users can add new categories, add sentences to existing categories, rearrange sentences within categories, and perform backup and restore operations for their data.
+Overview
 
-## Features
-- Add new categories
-- Add text to existing categories
-- Rearrange sentences within categories using drag and drop functionality
-- View full Text in a popup window
-- Copy sentences to clipboard
-- Delete sentences
-- Backup and restore data
+OneTouch is a web-based application designed to streamline the workflow of technical support professionals by providing quick access to stored templates, snippets, and emails. With just a single click, users can effortlessly copy saved text, enhancing their productivity and efficiency when assisting customers.
 
-## Technologies Used
-- HTML
-- CSS
-- JavaScript
+Features
+Single Click Copy: Easily copy saved text with just one click, eliminating the need for manual selection and copying.
+Template Management: Organize and manage templates, snippets, and emails for quick retrieval.
+Web-Based: Accessible from any device with an internet connection, providing flexibility and convenience.
+Enhanced Productivity: Save time and effort by swiftly accessing frequently used text resources.
 
-## How to Use
-1. Clone or download the repository to your local machine.
-2. Open the `index.html` file in a web browser.
-3. Use the application to manage categories and sentences as needed.
-4. Use the backup and restore functionality to save and retrieve your data.
+Installation
 
-## Additional Notes
-- Categories and sentences are stored locally in the browser's localStorage.
-- You can customize the styles and behavior of the application by modifying the HTML, CSS, and JavaScript files as needed.
+Just go to the "Releases", download the latest version zip file.
+Uzip the folder, open it, launch "OneTouch.exe"
 
-## Credits
-This application was created by [Your Name].
+Usage
 
-## License
-This project is licensed under the [MIT License](LICENSE).
+Download and launch OneTouch portable.
+Create template, snippet, or email using the + Icon > Save Text
+Click on the text to copy it to the clipboard.
+Paste the copied text wherever needed in your workflow.
+
+Contributing
+Contributions are welcome! Please follow these steps:
+
+Fork the repository.
+Create a new branch (git checkout -b feature/feature-name).
+Make your changes.
+Commit your changes (git commit -am 'Add new feature').
+Push to the branch (git push origin feature/feature-name).
+Create a new Pull Request.
+
+License
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+Contact
+For any inquiries or feedback, please contact us at princerk1001@gmail.com
+
+Visit our website: www.techmensland.com
