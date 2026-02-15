@@ -327,9 +327,9 @@
         }
 
         .sentence-block.dragging {
-            opacity: 0.5;
+            opacity: 0.45;
             border: 2px dashed #ccc;
-            transform: scale(0.95);
+            transform: scale(0.98);
         }
 
         #add-category,
@@ -1761,69 +1761,87 @@
         }
 
         // Live Drag and Drop Logic
+        let didDropSentence = false;
+
         function drag(event) {
+            const dragBlock = event.currentTarget || event.target.closest(".sentence-block");
+            if (!dragBlock) return;
+
+            didDropSentence = false;
+
             // Set data but mostly rely on DOM reordering
-            event.dataTransfer.setData("text", event.target.id);
+            event.dataTransfer.setData("text", dragBlock.id);
+            event.dataTransfer.effectAllowed = "move";
+
             // Add class for styling
-            event.target.classList.add("dragging");
+            dragBlock.classList.add("dragging");
         }
 
         function dragEnd(event) {
-            // If the element is still dragging, it means a valid drop didn't occur (or drop didn't clean it up).
-            // In this case, we revert the visual changes by re-rendering from the saved state.
-            if (event.target.classList.contains("dragging")) {
-                event.target.classList.remove("dragging");
-                renderSentences(); // Revert to last saved state
+            const dragBlock = event.currentTarget || event.target.closest(".sentence-block");
+            if (!dragBlock) return;
+
+            // If drop didn't occur, revert visual order from saved state
+            if (!didDropSentence) {
+                dragBlock.classList.remove("dragging");
+                renderSentences();
+                return;
             }
+
+            dragBlock.classList.remove("dragging");
         }
 
         function allowDrop(event) {
             event.preventDefault(); // Necessary to allow dropping
+
             const container = document.getElementById("sentences-container");
-            const dragging = document.querySelector(".dragging");
+            const dragging = container.querySelector(".dragging");
 
             // Only handle sentence blocks
             if (!dragging || !dragging.classList.contains("sentence-block")) return;
 
-            const afterElement = getDragAfterElement(container, event.clientX, event.clientY);
+            if (event.dataTransfer) event.dataTransfer.dropEffect = "move";
 
-            if (afterElement == null) {
-                container.appendChild(dragging);
-            } else {
-                container.insertBefore(dragging, afterElement);
+            const target = event.target.closest(".sentence-block");
+
+            // If hovering empty area in container, move to end.
+            if (!target) {
+                if (container.lastElementChild !== dragging) {
+                    container.appendChild(dragging);
+                }
+                return;
             }
+
+            // Ignore self-targeting while dragging.
+            if (target === dragging) return;
+
+            const rect = target.getBoundingClientRect();
+            const afterTarget = shouldInsertAfterTarget(event.clientX, event.clientY, rect);
+            const insertBeforeNode = afterTarget ? target.nextElementSibling : target;
+
+            // Avoid no-op DOM writes to reduce flicker.
+            if (insertBeforeNode === dragging || dragging.nextElementSibling === insertBeforeNode) return;
+
+            container.insertBefore(dragging, insertBeforeNode);
         }
 
-        // Helper to find the element to insert before
-        function getDragAfterElement(container, x, y) {
-            // Get all draggable elements except the one currently dragging
-            const draggableElements = [...container.querySelectorAll('.sentence-block:not(.dragging)')];
+        function shouldInsertAfterTarget(mouseX, mouseY, rect) {
+            const midY = rect.top + rect.height / 2;
+            const midX = rect.left + rect.width / 2;
 
-            return draggableElements.reduce((closest, child) => {
-                const box = child.getBoundingClientRect();
+            // Primary signal for wrapped layout: vertical half of hovered block.
+            if (mouseY < midY - 4) return false;
+            if (mouseY > midY + 4) return true;
 
-                // Calculate distance from center of child to mouse cursor
-                // We use standard Euclidean distance to find "closest" element in grid
-                const dist = Math.hypot(x - (box.left + box.width / 2), y - (box.top + box.height / 2));
-
-                // We also check relatively where the mouse is: 
-                // In a grid (LTR, TTB), we generally want to insert BEFORE the element if we are "before" its center.
-                // "Before" in grid reading order is complex, but simply "closest" usually means "swap with".
-                // If we are closest to Element A, we likely want to take A's spot.
-                // Inserting BEFORE A puts us in A's spot, pushing A forward.
-
-                if (dist < closest.offset) {
-                    return { offset: dist, element: child };
-                } else {
-                    return closest;
-                }
-            }, { offset: Number.POSITIVE_INFINITY }).element;
+            // Near the center line, use horizontal position for stability.
+            return mouseX >= midX;
         }
 
         function drop(event) {
             event.preventDefault();
             const dragging = document.querySelector(".dragging");
             if (dragging) {
+                didDropSentence = true;
                 dragging.classList.remove("dragging");
                 saveSentences(); // Ensure saved
             }
